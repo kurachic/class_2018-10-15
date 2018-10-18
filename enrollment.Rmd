@@ -13,13 +13,45 @@ library(janitor)
 ```
 
 ```{r}
+e_18 <- read_excel("class_enrollment_summary_by_term_10_12.xlsx", skip = 2) %>%
+  clean_names() %>%
+  filter(! is.na(course_name)) %>%
+  distinct(course_id, .keep_all=TRUE)
 
+e_17 <- read_excel("class_enrollment_summary_by_term_10.20.17.xlsx", skip = 2) %>%
+  clean_names() %>%
+  filter(! is.na(course_name))
 
+e_16 <- read_excel("copy_of_class_enrollment_summary_by_term_10.06.2016.xlsx", skip = 2) %>%
+  clean_names() %>%
+  filter(! is.na(course_name))
 
-e_18 <- read_excel("class_enrollment_summary_by_term_10_12.xlsx") 
+e_15 <- read_excel("CourseEnrollmentStatistics.xlsx") %>%
+  clean_names() %>%
+  filter(! is.na(course_id))
 
+# greatest increase in enrollment b/t 2017 & 2018
+x <- left_join(e_18, e_17, by = "course_id", suffix = c(".18", ".17"))
 
+x %>%
+  group_by(course_id) %>%
+  mutate(increase = total.18 - total.17) %>%
+  select(course_id, course_name.18, increase) %>%
+  arrange(desc(increase)) %>%
+  head(10)
 
 ```
 
+```{r}
+# greatest increase in enrollment b/t 2015 & 2018
+
+y <- left_join(e_18, e_15, by = "course_id", suffix = c(".18", ".15"))
+
+y %>%
+  group_by(course_id) %>%
+  mutate(increase = total - total_enrollment) %>%
+  select(course_id, course_name, increase) %>%
+  arrange(desc(increase)) %>%
+  head(10)
+```
 
